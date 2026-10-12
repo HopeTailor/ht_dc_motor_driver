@@ -75,3 +75,15 @@ esp_err_t ht_dc_motor_set_speed(ht_dc_motor_t *motor, ht_dc_motor_dir_t dir, flo
 
     return ESP_OK;
 }
+
+esp_err_t ht_dc_motor_stop(ht_dc_motor_t *motor) {
+    if(!motor) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    mcpwm_comparator_set_compare_value(motor->cmpr, 0);
+    gpio_set_level(motor->in1_pin, 0);
+    gpio_set_level(motor->in2_pin, 0);
+
+    return ESP_OK;
+}
