@@ -1,3 +1,0 @@
-idf_component_register(SRCS "src/ht_dc_motor.c"
-                       INCLUDE_DIRS "include"
-                       REQUIRES driver)
