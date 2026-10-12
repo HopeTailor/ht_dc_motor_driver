@@ -51,3 +51,27 @@ esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
 
     return ESP_OK;
 }
+
+esp_err_t ht_dc_motor_set_speed(ht_dc_motor_t *motor, ht_dc_motor_dir_t dir, float speed_percent) {
+    if(!motor || speed_percent < 0.0f || speed_percent > 100.0f) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    uint32_t compare_val = (uint32_t)((speed_percent / 100.0f) * (1000000 / motor->pwm_freq_hz));
+    mcpwm_comparator_set_compare_value(motor->cmpr, compare_val);
+
+    if(dir == HT_DC_MOTOR_FWD) {
+        gpio_set_level(motor->in1_pin, 1);
+        gpio_set_level(motor->in2_pin, 0);
+    }
+    else if(dir == HT_DC_MOTOR_REV) {
+        gpio_set_level(motor->in1_pin, 0);
+        gpio_set_level(motor->in2_pin, 1);
+    }
+    else {
+        gpio_set_level(motor->in1_pin, 0);
+        gpio_set_level(motor->in2_pin, 0);
+    }
+
+    return ESP_OK;
+}
