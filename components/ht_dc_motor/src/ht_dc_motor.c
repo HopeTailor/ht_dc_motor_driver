@@ -18,7 +18,7 @@ esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
     gpio_set_level(motor->in2_pin, 0);
 
     mcpwm_timer_config_t timer_config = {
-        .group_id = 0,
+        .group_id = motor->group_id,
         .clk_src = MCPWM_TIMER_CLK_SRC_DEFAULT,
         .resolution_hz = 1000000,
         .count_mode = MCPWM_TIMER_COUNT_MODE_UP,
@@ -27,7 +27,7 @@ esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
     mcpwm_new_timer(&timer_config, &motor->timer);
 
     mcpwm_operator_config_t oper_config = {
-        .group_id = 0,
+        .group_id = motor->group_id,
     };
     mcpwm_new_operator(&oper_config, &motor->oper);
     mcpwm_operator_connect_timer(motor->oper, motor->timer);
@@ -48,6 +48,6 @@ esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
 
     mcpwm_timer_enable(motor->timer);
     mcpwm_timer_start_stop(motor->timer, MCPWM_TIMER_START_NO_STOP);
-    
+
     return ESP_OK;
 }

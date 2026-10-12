@@ -16,6 +16,7 @@ typedef enum {
 } ht_dc_motor_dir_t;
 
 typedef struct {
+    int group_id;
     int in1_pin;
     int in2_pin;
     int en_pin;
