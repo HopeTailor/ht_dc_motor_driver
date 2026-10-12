@@ -1,1 +1,1 @@
-idf_component_register(SRCS "src/ht_dc_motor.c" INCLUDE_DIRS "include" REQUIRES "driver" "esp_driver_mcpwm")
+idf_component_register(SRCS "src/ht_dc_motor.c" INCLUDE_DIRS "include" REQUIRES "driver" "esp_driver_mcpwm" "esp_driver_gpio")
