@@ -6,11 +6,16 @@ esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
         return ESP_ERR_INVALID_ARG;
     }
 
+    uint64_t pin_mask = (1ULL << motor->in1_pin);
+    if(motor->in2_pin >= 0) {
+        pin_mask |= (1ULL << motor->in2_pin);
+    }
+
     /* 1. Configure Direction Pins (IN1 & IN2) as Outputs */
     gpio_config_t io_conf = {
         .intr_type = GPIO_INTR_DISABLE, // No interrupts needed for direction control
         .mode = GPIO_MODE_OUTPUT,
-        .pin_bit_mask = (1ULL << motor->in1_pin) | (1ULL << motor->in2_pin),
+        .pin_bit_mask = pin_mask,
         .pull_down_en = 0, // Hardware driver handles voltage levels
         .pull_up_en = 0,
     };
@@ -18,7 +23,9 @@ esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
     
     // Set initial safe state (motor stopped)
     gpio_set_level(motor->in1_pin, 0);
-    gpio_set_level(motor->in2_pin, 0);
+    if(motor->in2_pin >= 0) {
+        gpio_set_level(motor->in2_pin, 0);
+    }
 
     /* 2. Configure MCPWM Timer */
     mcpwm_timer_config_t timer_config = {
@@ -52,11 +59,9 @@ esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
 
     /* 6. Define Generator Actions (Create PWM Waveform) */
     // Set pin HIGH when timer hits zero
-    mcpwm_generator_set_action_on_timer_event(motor->gen, 
-        MCPWM_GEN_TIMER_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, MCPWM_TIMER_EVENT_EMPTY, MCPWM_GEN_ACTION_HIGH));
+    mcpwm_generator_set_action_on_timer_event(motor->gen, MCPWM_GEN_TIMER_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, MCPWM_TIMER_EVENT_EMPTY, MCPWM_GEN_ACTION_HIGH));
     // Set pin LOW when timer hits the comparator value
-    mcpwm_generator_set_action_on_compare_event(motor->gen, 
-        MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, motor->cmpr, MCPWM_GEN_ACTION_LOW));
+    mcpwm_generator_set_action_on_compare_event(motor->gen, MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, motor->cmpr, MCPWM_GEN_ACTION_LOW));
 
     /* 7. Start the Timer */
     mcpwm_timer_enable(motor->timer);
@@ -77,16 +82,22 @@ esp_err_t ht_dc_motor_set_speed(ht_dc_motor_t *motor, ht_dc_motor_dir_t dir, flo
     // Set direction pins
     if(dir == HT_DC_MOTOR_FWD) {
         gpio_set_level(motor->in1_pin, 1);
-        gpio_set_level(motor->in2_pin, 0);
+        if(motor->in2_pin >= 0) {
+            gpio_set_level(motor->in2_pin, 0);
+        }
     }
     else if(dir == HT_DC_MOTOR_REV) {
         gpio_set_level(motor->in1_pin, 0);
-        gpio_set_level(motor->in2_pin, 1);
+        if(motor->in2_pin >= 0) {
+            gpio_set_level(motor->in2_pin, 1);
+        }
     }
     else {
         // HT_DC_MOTOR_STOP falls here
         gpio_set_level(motor->in1_pin, 0);
-        gpio_set_level(motor->in2_pin, 0);
+        if(motor->in2_pin >= 0) {
+            gpio_set_level(motor->in2_pin, 0);
+        }
     }
 
     return ESP_OK;
@@ -100,7 +111,9 @@ esp_err_t ht_dc_motor_stop(ht_dc_motor_t *motor) {
     // Reset duty cycle to 0% and pull direction pins LOW
     mcpwm_comparator_set_compare_value(motor->cmpr, 0);
     gpio_set_level(motor->in1_pin, 0);
-    gpio_set_level(motor->in2_pin, 0);
+    if(motor->in2_pin >= 0) {
+        gpio_set_level(motor->in2_pin, 0);
+    }
 
     return ESP_OK;
 }
