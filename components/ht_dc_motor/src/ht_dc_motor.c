@@ -2,7 +2,7 @@
 
 
 esp_err_t ht_dc_motor_init(ht_dc_motor_t *motor) {
-    if(!motor) {
+    if(!motor || motor->pwm_freq_hz == 0) {
         return ESP_ERR_INVALID_ARG;
     }
 

@@ -37,7 +37,7 @@ typedef struct {
     /* User Configuration */
     int group_id;           /*!< MCPWM group ID (0 or 1). Useful for separating different motor groups. */
     int in1_pin;            /*!< GPIO pin connected to driver's IN1 (Direction pin 1) */
-    int in2_pin;            /*!< GPIO pin connected to driver's IN2 (Direction pin 2) */
+    int in2_pin;            /*!< GPIO pin connected to driver's IN2 (Direction pin 2) if not used set it to -1 */
     int en_pin;             /*!< GPIO pin connected to driver's EN (PWM speed control) */
     uint32_t pwm_freq_hz;   /*!< Desired PWM frequency in Hz (e.g., 20000 for 20kHz) */
 
